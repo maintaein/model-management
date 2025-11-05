@@ -1,0 +1,54 @@
+// Prisma Schema - Railway MySQL
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Category {
+  ALL
+  INTOWN
+  UPCOMING
+}
+
+model Model {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  category     Category  @default(ALL)
+  nationality  String
+  profileImage String
+  images       Json
+  bio          String?   @db.Text
+  height       Int?
+  measurements String?
+  instagram    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  archives     Archive[]
+
+  @@index([category])
+  @@index([slug])
+}
+
+model Archive {
+  id        String   @id @default(cuid())
+  title     String
+  images    Json
+  modelId   String
+  model     Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([modelId])
+}
+
+model Admin {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+}

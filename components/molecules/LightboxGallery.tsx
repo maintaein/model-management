@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import NextImage from 'next/image'
 import { css, cx } from '@/styled-system/css'
 import { Icon } from '@/components/atoms'
@@ -18,6 +18,15 @@ export function LightboxGallery({
 }: LightboxGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
 
+  // useCallback으로 함수를 메모이제이션하여 useEffect dependency 안정화
+  const handlePrevious = useCallback(() => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))
+  }, [images.length])
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))
+  }, [images.length])
+
   // 키보드 네비게이션
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,15 +39,7 @@ export function LightboxGallery({
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentIndex, images.length])
-
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))
-  }
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))
-  }
+  }, [handlePrevious, handleNext])
 
   const handleThumbnailClick = (index: number) => {
     setCurrentIndex(index)

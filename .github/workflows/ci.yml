@@ -15,6 +15,12 @@ jobs:
   quality-check:
     name: Code Quality Check
     runs-on: ubuntu-latest
+    
+    env:
+      # Prisma generate/validate 및 Next.js build를 위해 더미 URL을 설정정
+      DATABASE_URL: "mysql://dummy:dummy@localhost:3306/dummy"
+      NEXTAUTH_SECRET: "dummy-secret-for-ci-build-only"
+      NEXTAUTH_URL: "http://localhost:3000"
 
     steps:
       - name: Checkout code
@@ -33,21 +39,19 @@ jobs:
         run: npx panda codegen
 
       - name: Generate Prisma Client
+        # 이제 Job 레벨 env에 설정된 DATABASE_URL을 사용합니다.
         run: npx prisma generate
 
       - name: TypeScript type check
         run: npx tsc --noEmit
 
       - name: Validate Prisma schema
+        # 이제 Job 레벨 env에 설정된 DATABASE_URL을 사용합니다.
         run: npx prisma validate
 
       - name: Build Next.js application
         run: npm run build
-        env:
-          # CI 환경에서 빌드 시 필요한 환경 변수
-          DATABASE_URL: "mysql://dummy:dummy@localhost:3306/dummy"
-          NEXTAUTH_SECRET: "dummy-secret-for-ci-build-only"
-          NEXTAUTH_URL: "http://localhost:3000"
+        # 변경 사항 2: Job 레벨로 env를 이동했기 때문에 여기서 env 블록을 제거합니다.
 
       - name: Cache build artifacts
         uses: actions/cache@v4

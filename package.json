@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "create-admin": "tsx scripts/create-admin.ts",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "jest --clearCache && jest",
+    "test:watch": "jest --watch --no-cache",
+    "test:coverage": "jest --clearCache && jest --coverage",
+    "check-test-data": "tsx scripts/check-test-data.ts",
+    "clean-test-data": "tsx scripts/clean-test-data.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -45,6 +47,7 @@
     "prisma": "^6.18.0",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5"
   }

@@ -48,6 +48,7 @@ describe('GET /api/models/[id]', () => {
   })
 
   afterAll(async () => {
+    await cleanDatabase()
     await disconnectDatabase()
   })
 
@@ -109,6 +110,7 @@ describe('PATCH /api/models/[id]', () => {
   })
 
   afterAll(async () => {
+    await cleanDatabase()
     await disconnectDatabase()
   })
 
@@ -195,6 +197,7 @@ describe('DELETE /api/models/[id]', () => {
   })
 
   afterAll(async () => {
+    await cleanDatabase()
     await disconnectDatabase()
   })
 

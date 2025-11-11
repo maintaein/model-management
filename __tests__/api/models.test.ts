@@ -40,6 +40,7 @@ describe('GET /api/models', () => {
   })
 
   afterAll(async () => {
+    await cleanDatabase()
     await disconnectDatabase()
   })
 
@@ -126,6 +127,7 @@ describe('POST /api/models', () => {
   })
 
   afterAll(async () => {
+    await cleanDatabase()
     await disconnectDatabase()
   })
 

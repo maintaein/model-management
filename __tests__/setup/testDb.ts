@@ -15,6 +15,7 @@ export function getTestPrisma(): PrismaClient {
           url: process.env.DATABASE_URL,
         },
       },
+      log: ['error', 'warn'],
     })
   }
   return prisma
@@ -30,6 +31,10 @@ export async function setupTestDatabase(): Promise<void> {
         DATABASE_URL: process.env.DATABASE_URL,
       },
     })
+
+    // Prisma 연결 확인
+    const testPrisma = getTestPrisma()
+    await testPrisma.$connect()
   } catch (error) {
     console.error('테스트 DB 마이그레이션 실패:', error)
     throw error
@@ -40,13 +45,28 @@ export async function setupTestDatabase(): Promise<void> {
 export async function cleanDatabase(): Promise<void> {
   const testPrisma = getTestPrisma()
 
+  // Prisma 연결 확인
+  await testPrisma.$connect()
+
   // 모든 테이블 데이터 삭제 (순서 중요: 외래키 제약조건)
   await testPrisma.archive.deleteMany({})
   await testPrisma.model.deleteMany({})
   await testPrisma.admin.deleteMany({})
 
-  // 연결이 끊기지 않도록 약간의 대기
-  await new Promise(resolve => setTimeout(resolve, 100))
+  // Railway MySQL 원격 DB의 커밋 완료 대기
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  // 삭제가 완료되었는지 명시적으로 확인
+  const modelCount = await testPrisma.model.count()
+  const archiveCount = await testPrisma.archive.count()
+
+  if (modelCount > 0 || archiveCount > 0) {
+    console.warn(`⚠️ Cleanup incomplete: ${modelCount} models, ${archiveCount} archives remaining`)
+    // 추가 대기 후 재시도
+    await new Promise(resolve => setTimeout(resolve, 500))
+    await testPrisma.archive.deleteMany({})
+    await testPrisma.model.deleteMany({})
+  }
 }
 
 // 테스트 DB 연결 종료
